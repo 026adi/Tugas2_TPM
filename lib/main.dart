@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:teori_kelompok/screen/home_page.dart';
-
+import 'package:teori_kelompok/screen/login_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -14,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Aplikasi Dart',
-      home: HomePage(),
+      home: const LoginPage(),
     );
   }
 }
