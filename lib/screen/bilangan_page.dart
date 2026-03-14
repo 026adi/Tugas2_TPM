@@ -1,50 +1,46 @@
 import 'package:flutter/material.dart';
 
-class DeretScreen extends StatefulWidget {
-  const DeretScreen({super.key});
+class BilanganPage extends StatefulWidget {
+  const BilanganPage({super.key});
 
   @override
-  State<DeretScreen> createState() => _DeretScreenState();
+  State<BilanganPage> createState() => _BilanganPageState();
 }
 
-class _DeretScreenState extends State<DeretScreen> {
-  final TextEditingController _inputController = TextEditingController();
+class _BilanganPageState extends State<BilanganPage> {
+  final TextEditingController _angkaController = TextEditingController();
 
-  String _hasilRincian = "";
-  String _totalJumlah = "";
+  String _hasilGanjilGenap = '';
+  String _hasilPrima = '';
 
-  void _hitungTotalDigit() {
-    String input = _inputController.text.trim();
+  bool isPrima(int n) {
+    if (n <= 1) return false;
 
-    if (input.isEmpty) {
+    for (int i = 2; i * i <= n; i++) {
+      if (n % i == 0) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  void _cekBilangan() {
+    int? angka = int.tryParse(_angkaController.text);
+
+    if (angka != null) {
       setState(() {
-        _hasilRincian = "";
-        _totalJumlah = "Input kosong!";
-      });
-      return;
-    }
+        _hasilGanjilGenap = (angka % 2 == 0) ? 'Genap' : 'Ganjil';
 
-    if (!RegExp(r'^[0-9]+$').hasMatch(input)) {
+        _hasilPrima =
+            isPrima(angka) ? 'Bilangan Prima' : 'Bukan Bilangan Prima';
+      });
+    } else {
       setState(() {
-        _hasilRincian = "";
-        _totalJumlah = "Harap masukkan angka bulat saja!";
+        _hasilGanjilGenap = 'Input tidak valid';
+        _hasilPrima = '-';
       });
-      return;
     }
-
-    int total = 0;
-    List<String> rincian = [];
-
-    for (int i = 0; i < input.length; i++) {
-      int digit = int.parse(input[i]);
-      total += digit;
-      rincian.add(input[i]);
-    }
-
-    setState(() {
-      _hasilRincian = rincian.join(' + ');
-      _totalJumlah = total.toString();
-    });
   }
 
   @override
@@ -54,7 +50,7 @@ class _DeretScreenState extends State<DeretScreen> {
 
       appBar: AppBar(
         title: const Text(
-          'Jumlah Total Digit',
+          'Cek Bilangan',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -84,23 +80,15 @@ class _DeretScreenState extends State<DeretScreen> {
                   children: [
 
                     const Icon(
-                            Icons.add,
-                            size: 60,
-                            color: Colors.blue,
-                          ),
+                      Icons.calculate,
+                      size: 60,
+                      color: Colors.blue,
+                    ),
 
                     const SizedBox(height: 16),
 
-                    const Text(
-                      'Masukkan deret angka tanpa spasi.\nAplikasi akan menjumlahkan setiap digitnya.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-
-                    const SizedBox(height: 20),
-
                     TextField(
-                      controller: _inputController,
+                      controller: _angkaController,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
 
@@ -110,8 +98,7 @@ class _DeretScreenState extends State<DeretScreen> {
                       ),
 
                       decoration: InputDecoration(
-                        labelText: 'Masukkan Angka',
-                        hintText: 'Contoh: 1234',
+                        labelText: 'Masukkan Sebuah Angka',
 
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -134,7 +121,7 @@ class _DeretScreenState extends State<DeretScreen> {
                       height: 50,
 
                       child: ElevatedButton(
-                        onPressed: _hitungTotalDigit,
+                        onPressed: _cekBilangan,
 
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -145,7 +132,7 @@ class _DeretScreenState extends State<DeretScreen> {
                         ),
 
                         child: const Text(
-                          'Hitung Total',
+                          'Cek Angka',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -162,7 +149,7 @@ class _DeretScreenState extends State<DeretScreen> {
             const SizedBox(height: 24),
 
             /// CARD HASIL
-            if (_totalJumlah.isNotEmpty)
+            if (_hasilGanjilGenap.isNotEmpty)
               Card(
                 color: Colors.blue[50],
                 elevation: 2,
@@ -178,7 +165,7 @@ class _DeretScreenState extends State<DeretScreen> {
                     children: [
 
                       Text(
-                        'Hasil Perhitungan',
+                        'Hasil Pengecekan',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -193,24 +180,57 @@ class _DeretScreenState extends State<DeretScreen> {
 
                       const SizedBox(height: 10),
 
-                      if (_hasilRincian.isNotEmpty)
-                        Text(
-                          '$_hasilRincian\n= $_totalJumlah',
-                          textAlign: TextAlign.center,
+                      /// GANJIL GENAP
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
 
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
+                          const Text(
+                            'Jenis Bilangan:',
+                            style: TextStyle(fontSize: 16),
                           ),
-                        )
-                      else
-                        Text(
-                          _totalJumlah,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+
+                          Text(
+                            _hasilGanjilGenap,
+
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+
+                              color: _hasilGanjilGenap == 'Input tidak valid'
+                                  ? Colors.red
+                                  : Colors.blue[900],
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      /// PRIMA
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+
+                          const Text(
+                            'Status Prima:',
+                            style: TextStyle(fontSize: 16),
+                          ),
+
+                          Text(
+                            _hasilPrima,
+
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+
+                              color: _hasilPrima == 'Bilangan Prima'
+                                  ? Colors.green[700]
+                                  : Colors.orange[800],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

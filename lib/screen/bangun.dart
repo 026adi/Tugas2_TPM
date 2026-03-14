@@ -18,12 +18,6 @@ class _BangunPageState extends State<BangunPage> {
   double? _volume;
   String? _errorMessage;
 
-  // Rumus piramida persegi:
-  //   Luas Alas      = s²
-  //   Tinggi Sisi (apotema sisi tegak) = √((s/2)² + t²)
-  //   Luas Permukaan = Luas Alas + 4 × (½ × s × apotema)
-  //                  = s² + 2 × s × √((s/2)² + t²)
-  //   Volume         = ⅓ × Luas Alas × t
   void _hitung() {
     final String inputAlas = _alasController.text.trim();
     final String inputTinggi = _tinggiController.text.trim();
@@ -76,7 +70,6 @@ class _BangunPageState extends State<BangunPage> {
   }
 
   String _format(double val) {
-    // Tampilkan tanpa desimal jika bulat, maks 4 angka di belakang koma
     if (val == val.truncateToDouble()) {
       return val.toStringAsFixed(0);
     }
@@ -85,63 +78,46 @@ class _BangunPageState extends State<BangunPage> {
 
   Widget _hasilCard({
     required IconData icon,
-    required Color color,
     required String label,
     required String rumus,
     required double nilai,
     required String satuan,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+    return Card(
+      color: Colors.blue[50],
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
       ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              shape: BoxShape.circle,
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.blue, size: 28),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black54)),
+                  Text(rumus,
+                      style: const TextStyle(
+                          fontSize: 12, fontStyle: FontStyle.italic)),
+                ],
+              ),
             ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.black54,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  rumus,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: color.withOpacity(0.7),
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
+            Text(
+              '${_format(nilai)} $satuan',
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
             ),
-          ),
-          Text(
-            '${_format(nilai)} $satuan',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -156,65 +132,76 @@ class _BangunPageState extends State<BangunPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
+
       appBar: AppBar(
-        title: const Text('Luas & Volume Piramida'),
+        title: const Text(
+          'Luas & Volume Piramida',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Ilustrasi piramida
-            Center(
-              child: Column(
-                children: [
-                  CustomPaint(
-                    size: const Size(140, 110),
-                    painter: _PyramidPainter(),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Piramida Persegi',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.black45,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
+
+            /// ICON
+            const Icon(
+              Icons.architecture,
+              size: 60,
+              color: Colors.blue,
+            ),
+
+            const SizedBox(height: 10),
+
+            const Center(
+              child: Text(
+                'Piramida Persegi',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 25),
 
-            // Card input
+            /// CARD INPUT
             Card(
+              elevation: 4,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
-              elevation: 3,
+                borderRadius: BorderRadius.circular(15),
+              ),
+
               child: Padding(
                 padding: const EdgeInsets.all(20),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
                     const Text(
-                      'Masukkan Ukuran',
+                      'Masukkan Ukuran Piramida',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     const SizedBox(height: 16),
 
-                    // Field alas
                     TextField(
                       controller: _alasController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d*')),
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))
                       ],
                       decoration: InputDecoration(
                         labelText: 'Panjang Alas (s)',
@@ -222,22 +209,19 @@ class _BangunPageState extends State<BangunPage> {
                         prefixIcon: const Icon(Icons.square_outlined),
                         suffixText: 'cm',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      textInputAction: TextInputAction.next,
                     ),
 
                     const SizedBox(height: 14),
 
-                    // Field tinggi
                     TextField(
                       controller: _tinggiController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d*')),
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))
                       ],
                       decoration: InputDecoration(
                         labelText: 'Tinggi Piramida (t)',
@@ -245,42 +229,22 @@ class _BangunPageState extends State<BangunPage> {
                         prefixIcon: const Icon(Icons.height),
                         suffixText: 'cm',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => _hitung(),
                     ),
 
-                    // Pesan error
                     if (_errorMessage != null) ...[
                       const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          border: Border.all(color: Colors.red.shade200),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.error_outline,
-                                color: Colors.red, size: 18),
-                            const SizedBox(width: 8),
-                            Text(
-                              _errorMessage!,
-                              style: const TextStyle(
-                                  color: Colors.red, fontSize: 13),
-                            ),
-                          ],
-                        ),
+                      Text(
+                        _errorMessage!,
+                        style:
+                            const TextStyle(color: Colors.red, fontSize: 13),
                       ),
                     ],
 
                     const SizedBox(height: 20),
 
-                    // Tombol aksi
                     Row(
                       children: [
                         Expanded(
@@ -288,13 +252,6 @@ class _BangunPageState extends State<BangunPage> {
                             onPressed: _reset,
                             icon: const Icon(Icons.refresh),
                             label: const Text('Reset'),
-                            style: OutlinedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 13),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -303,18 +260,10 @@ class _BangunPageState extends State<BangunPage> {
                           child: ElevatedButton.icon(
                             onPressed: _hitung,
                             icon: const Icon(Icons.calculate),
-                            label: const Text(
-                              'Hitung',
-                              style: TextStyle(fontSize: 16),
-                            ),
+                            label: const Text('Hitung'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue.shade600,
+                              backgroundColor: Colors.blue,
                               foregroundColor: Colors.white,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 13),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
                             ),
                           ),
                         ),
@@ -325,37 +274,34 @@ class _BangunPageState extends State<BangunPage> {
               ),
             ),
 
-            // Hasil perhitungan
             if (_luasAlas != null) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: 25),
+
               const Text(
-                'Hasil Perhitungan',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                "Hasil Perhitungan",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+
               const SizedBox(height: 12),
 
               _hasilCard(
                 icon: Icons.grid_4x4,
-                color: Colors.orange,
                 label: 'Luas Alas',
                 rumus: 'L.alas = s²',
                 nilai: _luasAlas!,
                 satuan: 'cm²',
               ),
+
               _hasilCard(
                 icon: Icons.dashboard_outlined,
-                color: Colors.purple,
                 label: 'Luas Permukaan',
                 rumus: 'L.perm = s² + 2s√((s/2)² + t²)',
                 nilai: _luasPermukaan!,
                 satuan: 'cm²',
               ),
+
               _hasilCard(
                 icon: Icons.change_history,
-                color: Colors.teal,
                 label: 'Volume',
                 rumus: 'V = ⅓ × s² × t',
                 nilai: _volume!,
@@ -365,7 +311,7 @@ class _BangunPageState extends State<BangunPage> {
 
             const SizedBox(height: 16),
 
-            // Info rumus
+            /// RUMUS
             ExpansionTile(
               leading: const Icon(Icons.info_outline, color: Colors.blue),
               title: const Text(
@@ -378,7 +324,8 @@ class _BangunPageState extends State<BangunPage> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.blue.shade100),
                   ),
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,133 +347,4 @@ class _BangunPageState extends State<BangunPage> {
       ),
     );
   }
-}
-
-// Painter untuk ilustrasi piramida sederhana
-class _PyramidPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 1.5;
-
-    final strokePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..color = Colors.blue.shade800;
-
-    final cx = size.width / 2;
-
-    // Titik-titik
-    final apex = Offset(cx, 0); // puncak
-    final frontLeft = Offset(10, size.height * 0.75); // depan kiri
-    final frontRight = Offset(size.width - 10, size.height * 0.75); // depan kanan
-    final backLeft = Offset(cx - 30, size.height * 0.55); // belakang kiri
-    final backRight = Offset(cx + 30, size.height * 0.55); // belakang kanan
-
-    // Sisi kiri (gelap)
-    paint.color = Colors.blue.shade200;
-    canvas.drawPath(
-      Path()
-        ..moveTo(apex.dx, apex.dy)
-        ..lineTo(frontLeft.dx, frontLeft.dy)
-        ..lineTo(backLeft.dx, backLeft.dy)
-        ..close(),
-      paint,
-    );
-
-    // Sisi kanan (terang)
-    paint.color = Colors.blue.shade400;
-    canvas.drawPath(
-      Path()
-        ..moveTo(apex.dx, apex.dy)
-        ..lineTo(frontRight.dx, frontRight.dy)
-        ..lineTo(backRight.dx, backRight.dy)
-        ..close(),
-      paint,
-    );
-
-    // Sisi depan (paling terang)
-    paint.color = Colors.blue.shade300;
-    canvas.drawPath(
-      Path()
-        ..moveTo(apex.dx, apex.dy)
-        ..lineTo(frontLeft.dx, frontLeft.dy)
-        ..lineTo(frontRight.dx, frontRight.dy)
-        ..close(),
-      paint,
-    );
-
-    // Alas (perspektif jajaran genjang)
-    paint.color = Colors.blue.shade100;
-    canvas.drawPath(
-      Path()
-        ..moveTo(frontLeft.dx, frontLeft.dy)
-        ..lineTo(backLeft.dx, backLeft.dy)
-        ..lineTo(backRight.dx, backRight.dy)
-        ..lineTo(frontRight.dx, frontRight.dy)
-        ..close(),
-      paint,
-    );
-
-    // Outline semua sisi
-    canvas.drawPath(
-      Path()
-        ..moveTo(apex.dx, apex.dy)
-        ..lineTo(frontLeft.dx, frontLeft.dy)
-        ..lineTo(frontRight.dx, frontRight.dy)
-        ..lineTo(apex.dx, apex.dy)
-        ..lineTo(backLeft.dx, backLeft.dy)
-        ..lineTo(frontLeft.dx, frontLeft.dy)
-        ..moveTo(backLeft.dx, backLeft.dy)
-        ..lineTo(backRight.dx, backRight.dy)
-        ..lineTo(frontRight.dx, frontRight.dy)
-        ..moveTo(backRight.dx, backRight.dy)
-        ..lineTo(apex.dx, apex.dy),
-      strokePaint,
-    );
-
-    // Garis putus-putus alas belakang
-    final dashPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..color = Colors.blue.shade400;
-
-    _drawDashed(canvas, backLeft, backRight, dashPaint);
-
-    // Label s dan t
-    final textStyle = TextStyle(
-      color: Colors.blue.shade900,
-      fontSize: 11,
-      fontWeight: FontWeight.bold,
-    );
-    final tp = TextPainter(textDirection: TextDirection.ltr);
-
-    // label "s" di bawah
-    tp.text = TextSpan(text: 's', style: textStyle);
-    tp.layout();
-    tp.paint(canvas, Offset(cx - 5, size.height * 0.78));
-
-    // label "t" di tengah-kiri
-    tp.text = TextSpan(text: 't', style: textStyle);
-    tp.layout();
-    tp.paint(canvas, Offset(cx + 4, size.height * 0.3));
-  }
-
-  void _drawDashed(Canvas canvas, Offset start, Offset end, Paint paint) {
-    const dashLen = 5.0;
-    const gapLen = 3.0;
-    final total = (end - start).distance;
-    final dir = (end - start) / total;
-    double dist = 0;
-    while (dist < total) {
-      final a = start + dir * dist;
-      final b = start + dir * (dist + dashLen).clamp(0, total);
-      canvas.drawLine(a, b, paint);
-      dist += dashLen + gapLen;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

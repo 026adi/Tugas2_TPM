@@ -1,30 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:teori_kelompok/screen/login_page.dart';
 import 'package:teori_kelompok/screen/bangun.dart';
-// import 'penjumlahan.dart';
-// import 'bilangan.dart';
-// import 'deret.dart';
-// import 'stopwatch.dart';
+import 'package:teori_kelompok/screen/penjumlahan.dart';
+import 'package:teori_kelompok/screen/bilangan_page.dart';
+import 'package:teori_kelompok/screen/deret.dart';
+import 'package:teori_kelompok/screen/stopwatch.dart';
+import 'package:teori_kelompok/screen/profile.dart'; // <- import baru
 
 class HomePage extends StatelessWidget {
   final String namaUser;
 
   const HomePage({super.key, required this.namaUser});
 
-  Widget menuButton(BuildContext context, String title, Widget page) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 50),
+  Widget menuCard(
+      BuildContext context, String title, IconData icon, Widget page) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(25),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => page),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 10,
+              color: Colors.black.withOpacity(0.08),
+              offset: const Offset(0, 5),
+            )
+          ],
         ),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => page),
-          );
-        },
-        child: Text(title, style: const TextStyle(fontSize: 18)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.blue.shade100,
+              child: Icon(icon, size: 30, color: Colors.blue),
+            ),
+            const SizedBox(height: 15),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -51,9 +80,6 @@ class HomePage extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
             ),
             onPressed: () {
               Navigator.pop(ctx);
@@ -72,91 +98,144 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Menu Utama"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            tooltip: 'Logout',
-            icon: const Icon(Icons.logout),
-            onPressed: () => _logout(context),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Sambutan user
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.blue.shade100),
+      backgroundColor: Colors.grey.shade100,
+
+      body: Column(
+        children: [
+
+          /// HEADER DASHBOARD
+          Container(
+            height: 200,
+            padding: const EdgeInsets.only(top: 50, left: 20, right: 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.blue.shade800,
+                  Colors.blue.shade400,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.blue.shade600,
-                    child: Text(
-                      namaUser[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(35),
+                bottomRight: Radius.circular(35),
+              ),
+            ),
+
+            child: Column(
+              children: [
+
+                /// LOGO + LOGOUT
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+
+                    Image.asset(
+                      "assets/upn.png",
+                      width: 45,
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
+
+                    IconButton(
+                      icon: const Icon(Icons.logout, color: Colors.white),
+                      onPressed: () => _logout(context),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 25),
+
+                /// TEXT WELCOME
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Login sebagai',
-                        style:
-                            TextStyle(fontSize: 12, color: Colors.black54),
-                      ),
+
                       Text(
-                        namaUser,
+                        "Halo, $namaUser!",
                         style: const TextStyle(
-                          fontSize: 16,
+                          color: Colors.white,
+                          fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      const Text(
+                        "Selamat datang di aplikasi kami",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
                         ),
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 25),
+
+          /// MENU GRID
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+
+              child: GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+
+                children: [
+
+                  menuCard(
+                    context,
+                    "Luas & Volume Piramida",
+                    Icons.architecture,
+                    const BangunPage(),
+                  ),
+
+                  menuCard(
+                    context,
+                    "Penjumlahan & Pengurangan",
+                    Icons.calculate,
+                    const PenjumlahanScreen(),
+                  ),
+
+                  menuCard(
+                    context,
+                    "Cek Bilangan Prima",
+                    Icons.tag,
+                    BilanganPage(),
+                  ),
+
+                  menuCard(
+                    context,
+                    "Jumlah Total Digit",
+                    Icons.add_chart,
+                    const DeretScreen(),
+                  ),
+
+                  menuCard(
+                    context,
+                    "Stopwatch",
+                    Icons.timer,
+                    const StopwatchPage(),
+                  ),
+
+                  menuCard(
+                    context,
+                    "Anggota Kelompok",
+                    Icons.group,
+                    const ProfilePage(),
+                  ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "Aplikasi Pemrograman Mobile",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            menuButton(
-              context,
-              "Luas & Volume Piramida",
-              const BangunPage(),
-            ),
-
-            // menuButton(context, "Penjumlahan & Pengurangan", PenjumlahanPage()),
-            // menuButton(context, "Bilangan (Ganjil/Genap & Prima)", BilanganPage()),
-            // menuButton(context, "Jumlah Total Angka (Deret)", DeretPage()),
-            // menuButton(context, "Stopwatch", StopwatchPage()),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
