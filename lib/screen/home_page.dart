@@ -207,7 +207,7 @@ class HomePage extends StatelessWidget {
                   menuCard(
                     context,
                     "Cek Bilangan Prima",
-                    Icons.tag,
+                    Icons.check_circle_outline,
                     BilanganPage(),
                   ),
 

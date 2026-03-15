@@ -80,7 +80,7 @@ class _BilanganPageState extends State<BilanganPage> {
                   children: [
 
                     const Icon(
-                      Icons.calculate,
+                      Icons.workspace_premium_outlined,
                       size: 60,
                       color: Colors.blue,
                     ),
