@@ -8,97 +8,217 @@ class PenjumlahanScreen extends StatefulWidget {
 }
 
 class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
-  // Controller untuk menangkap teks yang diketik user
-  final TextEditingController _angka1Controller = TextEditingController();
-  final TextEditingController _angka2Controller = TextEditingController();
-  
-  String _hasil = "0";
 
-  // Fungsi untuk menghitung (operasi '+' atau '-')
-  void _hitung(String operasi) {
-    // Ubah text menjadi angka desimal (double) agar bisa hitung koma juga
-    double? angka1 = double.tryParse(_angka1Controller.text);
-    double? angka2 = double.tryParse(_angka2Controller.text);
+  String display = "0";
+  String operator = "";
+  bool isResult = false;
 
-    // Validasi jika input kosong atau bukan angka
-    if (angka1 == null || angka2 == null) {
-      setState(() {
-        _hasil = "Input tidak valid!";
-      });
-      return;
-    }
+  /// input angka
+  void inputNumber(String number) {
 
-    double hasilHitung = 0;
-    if (operasi == '+') {
-      hasilHitung = angka1 + angka2;
-    } else if (operasi == '-') {
-      hasilHitung = angka1 - angka2;
+    setState(() {
+
+      if (isResult) {
+        display = number;
+        isResult = false;
+        return;
+      }
+
+      if (display == "0") {
+        display = number;
+      } else {
+        display += number;
+      }
+
+    });
+
+  }
+
+  /// set operator
+  void setOperator(String op) {
+
+    if (operator.isNotEmpty) return;
+
+    operator = op;
+
+    setState(() {
+      display += op;
+      isResult = false;
+    });
+
+  }
+
+  /// hitung
+  void hitung() {
+
+    if (operator.isEmpty) return;
+
+    List<String> parts = display.split(operator);
+
+    if (parts.length < 2) return;
+
+    double num1 = double.parse(parts[0]);
+    double num2 = double.parse(parts[1]);
+
+    double result = 0;
+
+    if (operator == "+") {
+      result = num1 + num2;
+    } else if (operator == "-") {
+      result = num1 - num2;
     }
 
     setState(() {
-      // Hilangkan '.0' di belakang jika hasilnya adalah bilangan bulat
-      if (hasilHitung == hasilHitung.toInt()) {
-         _hasil = hasilHitung.toInt().toString();
+
+      if (result % 1 == 0) {
+        display = result.toInt().toString();
       } else {
-         _hasil = hasilHitung.toString();
+        display = result.toString();
       }
+
+      operator = "";
+      isResult = true;
     });
+
+  }
+
+  /// clear
+  void clear() {
+
+    setState(() {
+      display = "0";
+      operator = "";
+      isResult = false;
+    });
+
+  }
+
+  /// tombol
+  Widget buildButton(String text,
+      {Color color = Colors.white, Color textColor = Colors.black}) {
+
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.all(6),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            padding: const EdgeInsets.all(22),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          onPressed: () {
+
+            if (text == "C") {
+              clear();
+
+            } else if (text == "+") {
+              setOperator("+");
+
+            } else if (text == "-") {
+              setOperator("-");
+
+            } else if (text == "=") {
+              hitung();
+
+            } else {
+              inputNumber(text);
+            }
+
+          },
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Penjumlahan & Pengurangan'),
+        title: const Text("Penjumlahan & Pengurangan"),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _angka1Controller,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Angka Pertama',
-                border: OutlineInputBorder(),
+
+      body: Column(
+        children: [
+
+          /// DISPLAY
+          Container(
+            width: double.infinity,
+            height: 150,
+            color: Colors.blue.shade100,
+            alignment: Alignment.bottomRight,
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              display,
+              style: const TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _angka2Controller,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Angka Kedua',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => _hitung('+'),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Tambah'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () => _hitung('-'),
-                  icon: const Icon(Icons.remove),
-                  label: const Text('Kurang'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            const Text('Hasil:', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 8),
-            Text(
-              _hasil,
-              style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.blue),
-            ),
-          ],
-        ),
+          ),
+
+          Row(
+            children: [
+              buildButton("C",
+                  color: Colors.red.shade100,
+                  textColor: Colors.red),
+
+              buildButton("-",
+                  color: Colors.blue.shade100,
+                  textColor: Colors.blue),
+
+              buildButton("+",
+                  color: Colors.blue.shade100,
+                  textColor: Colors.blue),
+            ],
+          ),
+
+          Row(
+            children: [
+              buildButton("7"),
+              buildButton("8"),
+              buildButton("9"),
+            ],
+          ),
+
+          Row(
+            children: [
+              buildButton("4"),
+              buildButton("5"),
+              buildButton("6"),
+            ],
+          ),
+
+          Row(
+            children: [
+              buildButton("1"),
+              buildButton("2"),
+              buildButton("3"),
+            ],
+          ),
+
+          Row(
+            children: [
+              buildButton("0"),
+              buildButton("=",
+                  color: Colors.blue,
+                  textColor: Colors.white),
+            ],
+          ),
+        ],
       ),
     );
   }
