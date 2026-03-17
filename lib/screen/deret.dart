@@ -13,7 +13,7 @@ class _DeretScreenState extends State<DeretScreen> {
   String _hasilRincian = "";
   String _totalJumlah = "";
 
-  void _hitungTotalDigit() {
+  void _hitungTotal() {
     String input = _inputController.text.trim();
 
     if (input.isEmpty) {
@@ -24,21 +24,27 @@ class _DeretScreenState extends State<DeretScreen> {
       return;
     }
 
-    if (!RegExp(r'^[0-9]+$').hasMatch(input)) {
-      setState(() {
-        _hasilRincian = "";
-        _totalJumlah = "Harap masukkan angka bulat saja!";
-      });
-      return;
-    }
+    // pisah berdasarkan koma
+    List<String> angkaList = input.split(',');
 
     int total = 0;
     List<String> rincian = [];
 
-    for (int i = 0; i < input.length; i++) {
-      int digit = int.parse(input[i]);
-      total += digit;
-      rincian.add(input[i]);
+    for (String angka in angkaList) {
+      angka = angka.trim(); // hilangkan spasi
+
+      if (angka.isEmpty || int.tryParse(angka) == null) {
+        setState(() {
+          _hasilRincian = "";
+          _totalJumlah =
+              "Format salah! Gunakan angka dipisahkan koma.\nContoh: 8,99,100";
+        });
+        return;
+      }
+
+      int nilai = int.parse(angka);
+      total += nilai;
+      rincian.add(angka);
     }
 
     setState(() {
@@ -54,7 +60,7 @@ class _DeretScreenState extends State<DeretScreen> {
 
       appBar: AppBar(
         title: const Text(
-          'Jumlah Total Digit',
+          'Jumlah Deret Angka',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -84,15 +90,15 @@ class _DeretScreenState extends State<DeretScreen> {
                   children: [
 
                     const Icon(
-                            Icons.add,
-                            size: 60,
-                            color: Colors.blue,
-                          ),
+                      Icons.calculate,
+                      size: 60,
+                      color: Colors.blue,
+                    ),
 
                     const SizedBox(height: 16),
 
                     const Text(
-                      'Masukkan deret angka tanpa spasi.\nAplikasi akan menjumlahkan setiap digitnya.',
+                      'Masukkan angka dipisahkan dengan koma.\nContoh: 8,99,100',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16),
                     ),
@@ -110,8 +116,8 @@ class _DeretScreenState extends State<DeretScreen> {
                       ),
 
                       decoration: InputDecoration(
-                        labelText: 'Masukkan Angka',
-                        hintText: 'Contoh: 1234',
+                        labelText: 'Masukkan Deret Angka',
+                        hintText: 'Contoh: 8,99,100',
 
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -134,11 +140,10 @@ class _DeretScreenState extends State<DeretScreen> {
                       height: 50,
 
                       child: ElevatedButton(
-                        onPressed: _hitungTotalDigit,
+                        onPressed: _hitungTotal,
 
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
-
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
