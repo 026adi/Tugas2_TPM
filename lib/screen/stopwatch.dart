@@ -14,13 +14,22 @@ class _StopwatchPageState extends State<StopwatchPage> {
 
   List<String> lapTimes = [];
 
-  String formatTime(int milliseconds) {
-    int hundreds = (milliseconds / 10).truncate() % 100;
-    int seconds = (milliseconds / 1000).truncate() % 60;
-    int minutes = (milliseconds / 60000).truncate();
+  int initialMilliseconds = 0; // 🔥 untuk waktu awal
 
-    return "$minutes:${seconds.toString().padLeft(2, '0')}:${hundreds.toString().padLeft(2, '0')}";
+  /// FORMAT JAM:MENIT:DETIK:MILI
+  String formatTime(int milliseconds) {
+    int hours = (milliseconds ~/ 3600000);
+    int minutes = (milliseconds ~/ 60000) % 60;
+    int seconds = (milliseconds ~/ 1000) % 60;
+    int millis = (milliseconds % 1000) ~/ 10;
+
+    return "${hours.toString().padLeft(2, '0')}:"
+        "${minutes.toString().padLeft(2, '0')}:"
+        "${seconds.toString().padLeft(2, '0')}."
+        "${millis.toString().padLeft(2, '0')}";
   }
+
+  int get totalTime => initialMilliseconds + stopwatch.elapsedMilliseconds;
 
   void startTimer() {
     timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
@@ -42,13 +51,67 @@ class _StopwatchPageState extends State<StopwatchPage> {
     stopwatch.reset();
     timer?.cancel();
     lapTimes.clear();
+    initialMilliseconds = 0;
     setState(() {});
   }
 
   void simpanWaktu() {
     setState(() {
-      lapTimes.add(formatTime(stopwatch.elapsedMilliseconds));
+      lapTimes.add(formatTime(totalTime));
     });
+  }
+
+  /// 🔥 INPUT WAKTU AWAL
+  void setInitialTime() {
+    TextEditingController jam = TextEditingController();
+    TextEditingController menit = TextEditingController();
+    TextEditingController detik = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Set Waktu Awal"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: jam,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Jam"),
+              ),
+              TextField(
+                controller: menit,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Menit"),
+              ),
+              TextField(
+                controller: detik,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Detik"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                int h = int.tryParse(jam.text) ?? 0;
+                int m = int.tryParse(menit.text) ?? 0;
+                int s = int.tryParse(detik.text) ?? 0;
+
+                setState(() {
+                  initialMilliseconds =
+                      (h * 3600000) + (m * 60000) + (s * 1000);
+                });
+
+                Navigator.pop(context);
+              },
+              child: const Text("Set"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -84,26 +147,22 @@ class _StopwatchPageState extends State<StopwatchPage> {
                 child: Column(
                   children: [
 
-                    const Icon(
-                      Icons.timer,
-                      size: 60,
-                      color: Colors.blue,
-                    ),
+                    const Icon(Icons.timer, size: 60, color: Colors.blue),
 
                     const SizedBox(height: 20),
 
-                    /// WAKTU
+                    /// DISPLAY
                     Text(
-                      formatTime(stopwatch.elapsedMilliseconds),
+                      formatTime(totalTime),
                       style: const TextStyle(
-                        fontSize: 40,
+                        fontSize: 36,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
 
                     const SizedBox(height: 30),
 
-                    /// BUTTON BARIS 1
+                    /// BUTTON ROW
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -113,10 +172,8 @@ class _StopwatchPageState extends State<StopwatchPage> {
                             backgroundColor: Colors.blue,
                           ),
                           onPressed: startStopwatch,
-                          child: const Text(
-                            "Start",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          child: const Text("Start",
+                              style: TextStyle(color: Colors.white)),
                         ),
 
                         ElevatedButton(
@@ -124,10 +181,8 @@ class _StopwatchPageState extends State<StopwatchPage> {
                             backgroundColor: Colors.orange,
                           ),
                           onPressed: stopStopwatch,
-                          child: const Text(
-                            "Stop",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          child: const Text("Stop",
+                              style: TextStyle(color: Colors.white)),
                         ),
 
                         ElevatedButton(
@@ -135,17 +190,32 @@ class _StopwatchPageState extends State<StopwatchPage> {
                             backgroundColor: Colors.red,
                           ),
                           onPressed: resetStopwatch,
-                          child: const Text(
-                            "Reset",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          child: const Text("Reset",
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 10),
 
-                    /// BUTTON SIMPAN
+                    /// SET TIME BUTTON 🔥
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                        ),
+                        onPressed: setInitialTime,
+                        child: const Text(
+                          "Set Waktu Awal",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// SIMPAN
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -166,54 +236,18 @@ class _StopwatchPageState extends State<StopwatchPage> {
 
             const SizedBox(height: 20),
 
-            /// LIST HASIL SIMPAN
+            /// LAP LIST
             if (lapTimes.isNotEmpty)
               Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-
-                  child: Column(
-                    children: [
-
-                      Text(
-                        "Riwayat Waktu",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[800],
-                        ),
-                      ),
-
-                      const Divider(),
-
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: lapTimes.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.blue,
-                              child: Text(
-                                "${index + 1}",
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            title: Text(
-                              lapTimes[index],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: lapTimes.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(lapTimes[index]),
+                    );
+                  },
                 ),
               ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 class PenjumlahanScreen extends StatefulWidget {
   const PenjumlahanScreen({super.key});
@@ -10,87 +11,82 @@ class PenjumlahanScreen extends StatefulWidget {
 class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
 
   String display = "0";
-  String operator = "";
   bool isResult = false;
 
-  /// input angka
-  void inputNumber(String number) {
+  /// input angka / titik
+  void input(String value) {
 
     setState(() {
 
       if (isResult) {
-        display = number;
+        display = value;
         isResult = false;
         return;
       }
 
       if (display == "0") {
-        display = number;
+        display = value;
       } else {
-        display += number;
+        display += value;
       }
 
     });
 
   }
 
-  /// set operator
-  void setOperator(String op) {
-
-    if (operator.isNotEmpty) return;
-
-    operator = op;
+  /// operator (+ - * /)
+  void operator(String op) {
 
     setState(() {
+
+      if (isResult) {
+        isResult = false;
+      }
+
       display += op;
-      isResult = false;
+
     });
 
   }
 
-  /// hitung
+  /// hitung expression
   void hitung() {
 
-    if (operator.isEmpty) return;
+    try {
 
-    List<String> parts = display.split(operator);
+      String finalExpression = display.replaceAll('×', '*').replaceAll('÷', '/');
 
-    if (parts.length < 2) return;
+      Parser p = Parser();
+      Expression exp = p.parse(finalExpression);
+      ContextModel cm = ContextModel();
 
-    double num1 = double.parse(parts[0]);
-    double num2 = double.parse(parts[1]);
+      double result = exp.evaluate(EvaluationType.REAL, cm);
 
-    double result = 0;
+      setState(() {
 
-    if (operator == "+") {
-      result = num1 + num2;
-    } else if (operator == "-") {
-      result = num1 - num2;
+        if (result % 1 == 0) {
+          display = result.toInt().toString();
+        } else {
+          display = result.toString();
+        }
+
+        isResult = true;
+
+      });
+
+    } catch (e) {
+      setState(() {
+        display = "Error";
+      });
     }
-
-    setState(() {
-
-      if (result % 1 == 0) {
-        display = result.toInt().toString();
-      } else {
-        display = result.toString();
-      }
-
-      operator = "";
-      isResult = true;
-    });
-
   }
 
   /// clear
   void clear() {
-
     setState(() {
       display = "0";
-      operator = "";
       isResult = false;
     });
-
   }
 
   /// tombol
@@ -113,17 +109,14 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
             if (text == "C") {
               clear();
 
-            } else if (text == "+") {
-              setOperator("+");
-
-            } else if (text == "-") {
-              setOperator("-");
-
             } else if (text == "=") {
               hitung();
 
+            } else if (text == "+" || text == "-" || text == "×" || text == "÷") {
+              operator(text);
+
             } else {
-              inputNumber(text);
+              input(text);
             }
 
           },
@@ -145,7 +138,7 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Penjumlahan & Pengurangan"),
+        title: const Text("Calculator"),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
@@ -170,52 +163,52 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
             ),
           ),
 
+          /// ROW 1
           Row(
             children: [
-              buildButton("C",
-                  color: Colors.red.shade100,
-                  textColor: Colors.red),
-
-              buildButton("-",
-                  color: Colors.blue.shade100,
-                  textColor: Colors.blue),
-
-              buildButton("+",
-                  color: Colors.blue.shade100,
-                  textColor: Colors.blue),
+              buildButton("C", color: Colors.red.shade100, textColor: Colors.red),
+              buildButton("÷", color: Colors.blue.shade100, textColor: Colors.blue),
+              buildButton("×", color: Colors.blue.shade100, textColor: Colors.blue),
+              buildButton("-", color: Colors.blue.shade100, textColor: Colors.blue),
             ],
           ),
 
+          /// ROW 2
           Row(
             children: [
               buildButton("7"),
               buildButton("8"),
               buildButton("9"),
+              buildButton("+", color: Colors.blue.shade100, textColor: Colors.blue),
             ],
           ),
 
+          /// ROW 3
           Row(
             children: [
               buildButton("4"),
               buildButton("5"),
               buildButton("6"),
+              buildButton(".", color: Colors.grey.shade200),
             ],
           ),
 
+          /// ROW 4
           Row(
             children: [
               buildButton("1"),
               buildButton("2"),
               buildButton("3"),
-            ],
-          ),
-
-          Row(
-            children: [
-              buildButton("0"),
               buildButton("=",
                   color: Colors.blue,
                   textColor: Colors.white),
+            ],
+          ),
+
+          /// ROW 5
+          Row(
+            children: [
+              buildButton("0"),
             ],
           ),
         ],
