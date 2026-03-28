@@ -14,6 +14,7 @@ class _WetonPageState extends State<WetonPage> {
   final tahunC = TextEditingController();
 
   String hasil = "";
+  String wetonDetail = "";
 
   @override
   void dispose() {
@@ -21,6 +22,36 @@ class _WetonPageState extends State<WetonPage> {
     bulanC.dispose();
     tahunC.dispose();
     super.dispose();
+  }
+
+  /// FUNGSI UNTUK MEMUNCULKAN KALENDER (DATE PICKER)
+  Future<void> _pilihTanggal(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900), // Batas tahun paling bawah
+      lastDate: DateTime(2100),  // Batas tahun paling atas (bisa disesuaikan)
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF2F84DB), // Warna header kalender
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        hariC.text = pickedDate.day.toString();
+        bulanC.text = pickedDate.month.toString();
+        tahunC.text = pickedDate.year.toString();
+      });
+    }
   }
 
   String getHari(int weekday) {
@@ -36,14 +67,20 @@ class _WetonPageState extends State<WetonPage> {
     final t = int.tryParse(tahunC.text);
 
     if (h == null || b == null || t == null) {
-      setState(() => hasil = "Input tidak valid");
+      setState(() {
+        wetonDetail = "Input tidak valid";
+        hasil = "";
+      });
       return;
     }
 
     final date = DateTime(t, b, h);
 
     if (date.day != h || date.month != b || date.year != t) {
-      setState(() => hasil = "Tanggal tidak valid");
+      setState(() {
+        wetonDetail = "Tanggal tidak valid";
+        hasil = "";
+      });
       return;
     }
 
@@ -62,6 +99,7 @@ class _WetonPageState extends State<WetonPage> {
     const pasaran = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
 
     setState(() {
+      wetonDetail = "Weton Anda yaitu :";
       hasil = "${getHari(date.weekday)} ${pasaran[jdn % 5]}";
     });
   }
@@ -69,13 +107,17 @@ class _WetonPageState extends State<WetonPage> {
   Widget inputBox(TextEditingController c, String hint) {
     return Expanded(
       child: SizedBox(
-        height: 40,
+        height: 42, // Disamakan tingginya dengan icon kalender
         child: TextField(
           controller: c,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: const TextStyle(
+              fontSize: 13,
+              color: Colors.black54,
+            ),
             filled: true,
             fillColor: const Color(0xFFF8F1F7),
             contentPadding:
@@ -83,6 +125,17 @@ class _WetonPageState extends State<WetonPage> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
               borderSide: const BorderSide(color: Color(0xFFCEBED3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+              borderSide: const BorderSide(color: Color(0xFFCEBED3)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+              borderSide: const BorderSide(
+                color: Color(0xFFB99FC0),
+                width: 1.2,
+              ),
             ),
           ),
         ),
@@ -98,88 +151,115 @@ class _WetonPageState extends State<WetonPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF2F84DB),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         centerTitle: true,
         title: const Text(
           "Hitung Hari Jawa",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container(
-              width: 280,
-              height: 280,
-              padding: const EdgeInsets.all(8),
-              child: Image.asset(
-                'assets/iconjawa.png',
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
+      // Dibungkus SafeArea dan SingleChildScrollView agar tidak error overflow saat keyboard muncul
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                inputBox(hariC, "Hari"),
-                const SizedBox(width: 8),
-                inputBox(bulanC, "Bulan"),
-                const SizedBox(width: 8),
-                inputBox(tahunC, "Tahun"),
+                Container(
+                  width: 280,
+                  height: 280,
+                  padding: const EdgeInsets.all(8),
+                  child: Image.asset(
+                    'assets/iconjawa.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    inputBox(hariC, "Hari"),
+                    const SizedBox(width: 8),
+                    inputBox(bulanC, "Bulan"),
+                    const SizedBox(width: 8),
+                    inputBox(tahunC, "Tahun"),
+                    const SizedBox(width: 8),
+                    /// TOMBOL ICON KALENDER
+                    Container(
+                      height: 42,
+                      width: 42,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2F84DB).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.calendar_month, color: Color(0xFF2F84DB), size: 20),
+                        onPressed: () => _pilihTanggal(context),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: 200,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: hitungWeton,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2F84DB),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const Text(
+                      "Hitung Weton",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                /// RESULT
+                if (wetonDetail.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDCEBFA),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          wetonDetail,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        if (hasil.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            hasil,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
               ],
             ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: 200,
-              height: 45,
-              child: ElevatedButton(
-                onPressed: hitungWeton,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2F84DB),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: const Text(
-                  "Hitung Weton",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            /// RESULT
-            if (hasil.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              decoration: BoxDecoration(
-                color: const Color(0xFFDCEBFA),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-              children: [
-                const Text(
-                  "Weton Anda yaitu :",
-                  style: TextStyle(fontSize: 14),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  hasil,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            ),
-          ],
+          ),
         ),
       ),
     );

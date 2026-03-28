@@ -31,6 +31,61 @@ class _TanggalLahirPageState extends State<TanggalLahirPage> {
     super.dispose();
   }
 
+  /// FUNGSI UNTUK MEMUNCULKAN KALENDER (DATE PICKER)
+  Future<void> _pilihTanggal(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900), // Batas tahun paling bawah
+      lastDate: DateTime.now(),  // Batas tahun paling atas (hari ini)
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF2F84DB), // Warna header kalender
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        hari.text = pickedDate.day.toString();
+        bulan.text = pickedDate.month.toString();
+        tahun.text = pickedDate.year.toString();
+      });
+    }
+  }
+
+  /// FUNGSI UNTUK MEMUNCULKAN JAM (TIME PICKER)
+  Future<void> _pilihWaktu(BuildContext context) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF2F84DB),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        jam.text = pickedTime.hour.toString();
+        menit.text = pickedTime.minute.toString();
+      });
+    }
+  }
+
   void mulaiHitung() {
     final t = int.tryParse(tahun.text);
     final b = int.tryParse(bulan.text);
@@ -63,6 +118,7 @@ class _TanggalLahirPageState extends State<TanggalLahirPage> {
       });
       return;
     }
+    
     tanggalLahir = inputDate;
     timer?.cancel();
     timer = Timer.periodic(const Duration(minutes: 1), (_) {
@@ -92,11 +148,37 @@ class _TanggalLahirPageState extends State<TanggalLahirPage> {
     int jamU = sisa ~/ 3600;
     int menitU = (sisa % 3600) ~/ 60;
 
+    /// --- TAMBAHAN: HITUNG TOTAL KESELURUHAN ---
+    int totalHari = diff.inDays;
+    int totalJam = diff.inHours;
+    int totalMenit = diff.inMinutes;
+    
+    // Kalkulasi Total Bulan
+    int totalBulan = (now.year - tanggalLahir!.year) * 12 + now.month - tanggalLahir!.month;
+    // Kurangi 1 bulan jika tanggal hari ini belum melewati tanggal lahir di bulan ini
+    if (now.day < tanggalLahir!.day || (now.day == tanggalLahir!.day && now.hour < tanggalLahir!.hour)) {
+      totalBulan--;
+    }
+    if (totalBulan < 0) totalBulan = 0;
+
+    // Fungsi bantu untuk format angka ribuan (misal: 10000 -> 10.000)
+    String formatRibuan(int angka) {
+      return angka.toString().replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), 
+        (Match m) => '${m[1]}.'
+      );
+    }
+
     setState(() {
       hasil =
-          "Umur Anda Sekarang :\n\n"
-          "$tahunU Tahun, $bulanU Bulan, $hariU Hari\n\n"
-          "$jamU Jam, $menitU menit";
+          "Umur Anda Sekarang:\n\n"
+          "$tahunU Tahun, $bulanU Bulan, $hariU Hari\n"
+          "$jamU Jam, $menitU Menit\n\n"
+          "✨ Rincian Total ✨\n\n"
+          "Total Bulan : ${formatRibuan(totalBulan)} Bulan\n"
+          "Total Hari : ${formatRibuan(totalHari)} Hari\n"
+          "Total Jam : ${formatRibuan(totalJam)} Jam\n"
+          "Total Menit : ${formatRibuan(totalMenit)} Menit";
     });
   }
 
@@ -150,7 +232,7 @@ class _TanggalLahirPageState extends State<TanggalLahirPage> {
     );
   }
 
-  Widget inputRow3() {
+  Widget inputRow3(BuildContext context) {
     return Row(
       children: [
         buildInput(hari, "Hari"),
@@ -158,16 +240,42 @@ class _TanggalLahirPageState extends State<TanggalLahirPage> {
         buildInput(bulan, "Bulan"),
         const SizedBox(width: 8),
         buildInput(tahun, "Tahun"),
+        const SizedBox(width: 8),
+        Container(
+          height: 42,
+          width: 42,
+          decoration: BoxDecoration(
+            color: const Color(0xFF2F84DB).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.calendar_month, color: Color(0xFF2F84DB), size: 20),
+            onPressed: () => _pilihTanggal(context),
+          ),
+        ),
       ],
     );
   }
 
-  Widget inputRow2() {
+  Widget inputRow2(BuildContext context) {
     return Row(
       children: [
         buildInput(jam, "Jam"),
         const SizedBox(width: 8),
         buildInput(menit, "Menit"),
+        const SizedBox(width: 8),
+        Container(
+          height: 42,
+          width: 42,
+          decoration: BoxDecoration(
+            color: const Color(0xFF2F84DB).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.access_time, color: Color(0xFF2F84DB), size: 20),
+            onPressed: () => _pilihWaktu(context),
+          ),
+        ),
       ],
     );
   }
@@ -204,20 +312,20 @@ class _TanggalLahirPageState extends State<TanggalLahirPage> {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2F84DB), // biru
+                    color: const Color(0xFF2F84DB),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.cake,
                     size: 32,
-                    color: Colors.white, // icon jadi terang
+                    color: Colors.white, 
                   ),
                 ),
                 const SizedBox(height: 34),
 
-                inputRow3(),
+                inputRow3(context),
                 const SizedBox(height: 8),
-                inputRow2(),
+                inputRow2(context),
                 const SizedBox(height: 18),
 
                 SizedBox(

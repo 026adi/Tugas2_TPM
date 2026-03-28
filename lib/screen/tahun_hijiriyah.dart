@@ -17,6 +17,39 @@ class _HijriyahPageState extends State<HijriyahPage> {
     super.dispose();
   }
 
+  /// FUNGSI UNTUK MEMUNCULKAN KALENDER (DATE PICKER)
+  Future<void> _pilihTanggal(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900), // Batas tahun bawah
+      lastDate: DateTime(2100),  // Batas tahun atas
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF2F84DB), // Warna header kalender disamakan dengan tema biru
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        // Format bulan dan hari agar selalu 2 digit (misal: 03, 09)
+        String bulan = pickedDate.month.toString().padLeft(2, '0');
+        String hari = pickedDate.day.toString().padLeft(2, '0');
+        
+        // Memasukkan hasil pilihan kalender ke dalam TextField dengan format YYYY-MM-DD
+        tanggal.text = "${pickedDate.year}-$bulan-$hari";
+      });
+    }
+  }
+
   void konversiHijriyah() {
     final input = tanggal.text.trim();
 
@@ -147,10 +180,14 @@ class _HijriyahPageState extends State<HijriyahPage> {
                 const SizedBox(height: 34),
 
                 SizedBox(
-                  height: 38,
+                  height: 48, // Sedikit ditinggikan agar pas dengan icon
                   child: TextField(
                     controller: tanggal,
                     keyboardType: TextInputType.datetime,
+                    /// TAMBAHAN: ReadOnly agar user dipaksa pilih via kalender (opsional, bisa dihapus jika ingin tetap bisa ngetik)
+                    readOnly: true, 
+                    /// TAMBAHAN: onTap agar bisa langsung klik formnya
+                    onTap: () => _pilihTanggal(context), 
                     decoration: InputDecoration(
                       hintText: "Masukkan tanggal (YYYY-MM-DD)",
                       hintStyle: const TextStyle(
@@ -163,22 +200,27 @@ class _HijriyahPageState extends State<HijriyahPage> {
                         horizontal: 12,
                         vertical: 10,
                       ),
+                      /// TAMBAHAN: Ikon kalender di dalam TextField
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calendar_month, color: Color(0xFF2F84DB)),
+                        onPressed: () => _pilihTanggal(context),
+                      ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(4), // Disesuaikan border radiusnya
                         borderSide: const BorderSide(
                           color: Color(0xFFCEBED3),
                           width: 1,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(4),
                         borderSide: const BorderSide(
                           color: Color(0xFFCEBED3),
                           width: 1,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(4),
                         borderSide: const BorderSide(
                           color: Color(0xFFB99FC0),
                           width: 1.2,
@@ -193,7 +235,7 @@ class _HijriyahPageState extends State<HijriyahPage> {
                 Center(
                   child: SizedBox(
                     width: 120,
-                    height: 30,
+                    height: 35, // Sedikit ditinggikan agar terlihat lebih proporsional
                     child: ElevatedButton(
                       onPressed: konversiHijriyah,
                       style: ElevatedButton.styleFrom(
