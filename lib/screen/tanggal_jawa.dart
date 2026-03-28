@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 class WetonPage extends StatefulWidget {
   const WetonPage({super.key});
 
@@ -10,13 +9,11 @@ class WetonPage extends StatefulWidget {
 }
 
 class _WetonPageState extends State<WetonPage> {
-  final TextEditingController hariC = TextEditingController();
-  final TextEditingController bulanC = TextEditingController();
-  final TextEditingController tahunC = TextEditingController();
+  final hariC = TextEditingController();
+  final bulanC = TextEditingController();
+  final tahunC = TextEditingController();
 
   String hasil = "";
-
-  final List<String> pasaran = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
 
   @override
   void dispose() {
@@ -26,87 +23,68 @@ class _WetonPageState extends State<WetonPage> {
     super.dispose();
   }
 
-  void hitungWeton() {
-  if (!mounted) return;
-
-  final hText = hariC.text;
-  final bText = bulanC.text;
-  final tText = tahunC.text;
-
-  if (hText.isEmpty || bText.isEmpty || tText.isEmpty) {
-    setState(() {
-      hasil = "Isi semua!";
-    });
-    return;
-  }
-
-  final hari = int.tryParse(hText);
-  final bulan = int.tryParse(bText);
-  final tahun = int.tryParse(tText);
-
-  if (hari == null || bulan == null || tahun == null) {
-    setState(() {
-      hasil = "Harus angka!";
-    });
-    return;
-  }
-
-  final date = DateTime(tahun, bulan, hari);
-
-  int a = (14 - bulan) ~/ 12;
-  int y2 = tahun + 4800 - a;
-  int m2 = bulan + 12 * a - 3;
-
-  int jdn = hari +
-      ((153 * m2 + 2) ~/ 5) +
-      365 * y2 +
-      (y2 ~/ 4) -
-      (y2 ~/ 100) +
-      (y2 ~/ 400) -
-      32045;
-
-  final pasaran = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
-  final hasilPasaran = pasaran[jdn % 5];
-
-  final hariMasehi = getHari(date.weekday);
-
-  setState(() {
-    hasil = "$hariMasehi $hasilPasaran";
-  });
-}
-
   String getHari(int weekday) {
-    switch (weekday) {
-      case 1:
-        return "Senin";
-      case 2:
-        return "Selasa";
-      case 3:
-        return "Rabu";
-      case 4:
-        return "Kamis";
-      case 5:
-        return "Jumat";
-      case 6:
-        return "Sabtu";
-      case 7:
-        return "Minggu";
-      default:
-        return "";
-    }
+    const hariMap = [
+      "", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"
+    ];
+    return hariMap[weekday];
   }
 
-  Widget inputBox(TextEditingController c, String label) {
+  void hitungWeton() {
+    final h = int.tryParse(hariC.text);
+    final b = int.tryParse(bulanC.text);
+    final t = int.tryParse(tahunC.text);
+
+    if (h == null || b == null || t == null) {
+      setState(() => hasil = "Input tidak valid");
+      return;
+    }
+
+    final date = DateTime(t, b, h);
+
+    if (date.day != h || date.month != b || date.year != t) {
+      setState(() => hasil = "Tanggal tidak valid");
+      return;
+    }
+
+    int a = (14 - b) ~/ 12;
+    int y2 = t + 4800 - a;
+    int m2 = b + 12 * a - 3;
+
+    int jdn = h +
+        ((153 * m2 + 2) ~/ 5) +
+        365 * y2 +
+        (y2 ~/ 4) -
+        (y2 ~/ 100) +
+        (y2 ~/ 400) -
+        32045;
+
+    const pasaran = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
+
+    setState(() {
+      hasil = "${getHari(date.weekday)} ${pasaran[jdn % 5]}";
+    });
+  }
+
+  Widget inputBox(TextEditingController c, String hint) {
     return Expanded(
-      child: TextField(
-        controller: c,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-        ],
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
+      child: SizedBox(
+        height: 40,
+        child: TextField(
+          controller: c,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: const Color(0xFFF8F1F7),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+              borderSide: const BorderSide(color: Color(0xFFCEBED3)),
+            ),
+          ),
         ),
       ),
     );
@@ -115,35 +93,91 @@ class _WetonPageState extends State<WetonPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+
       appBar: AppBar(
-        title: const Text("Weton Jawa"),
+        backgroundColor: const Color(0xFF2F84DB),
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          "Hitung Hari Jawa",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            Container(
+              width: 280,
+              height: 280,
+              padding: const EdgeInsets.all(8),
+              child: Image.asset(
+                'assets/iconjawa.png',
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 18),
             Row(
               children: [
                 inputBox(hariC, "Hari"),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 inputBox(bulanC, "Bulan"),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 inputBox(tahunC, "Tahun"),
               ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: hitungWeton,
-              child: const Text("Hitung Weton"),
-            ),
-            const SizedBox(height: 30),
-            Text(
-              hasil,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            const SizedBox(height: 40),
+            SizedBox(
+              width: 200,
+              height: 45,
+              child: ElevatedButton(
+                onPressed: hitungWeton,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2F84DB),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text(
+                  "Hitung Weton",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
               ),
+            ),
+
+            const SizedBox(height: 20),
+
+            /// RESULT
+            if (hasil.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              decoration: BoxDecoration(
+                color: const Color(0xFFDCEBFA),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+              children: [
+                const Text(
+                  "Weton Anda yaitu :",
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  hasil,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
             ),
           ],
         ),
