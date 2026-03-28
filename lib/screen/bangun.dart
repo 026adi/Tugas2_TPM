@@ -35,7 +35,7 @@ class _BangunPageState extends State<BangunPage> {
     final double? alas = double.tryParse(inputAlas);
     final double? tinggi = double.tryParse(inputTinggi);
 
-    if (alas == null || tinggi == null || alas <= 0 || tinggi <= 0|| !alas.isFinite || !tinggi.isFinite) {
+    if (alas == null || tinggi == null || alas <= 0 || tinggi <= 0) {
       setState(() {
         _errorMessage = 'Masukkan angka positif yang valid.';
         _luasAlas = null;
@@ -198,7 +198,6 @@ class _BangunPageState extends State<BangunPage> {
 
                     TextField(
                       controller: _alasController,
-                      maxLength: 10,
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
@@ -209,18 +208,16 @@ class _BangunPageState extends State<BangunPage> {
                         hintText: 'Contoh: 6',
                         prefixIcon: const Icon(Icons.square_outlined),
                         suffixText: 'cm',
-                        counterText: '',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                      ),  
+                      ),
                     ),
 
                     const SizedBox(height: 14),
 
                     TextField(
                       controller: _tinggiController,
-                      maxLength: 10,
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
@@ -231,7 +228,6 @@ class _BangunPageState extends State<BangunPage> {
                         hintText: 'Contoh: 4',
                         prefixIcon: const Icon(Icons.height),
                         suffixText: 'cm',
-                        counterText: '',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

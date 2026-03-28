@@ -227,6 +227,13 @@ class HomePage extends StatelessWidget {
                     Icons.timer,
                     const StopwatchPage(),
                   ),
+
+                  menuCard(
+                    context,
+                    "Anggota Kelompok",
+                    Icons.group,
+                    const ProfilePage(),
+                  ),
                   menuCard(
                     context,
                     "Tanggal Lahir",
@@ -244,12 +251,6 @@ class HomePage extends StatelessWidget {
                     "Konversi Tahun Masehi",
                     Icons.group,
                     const HijriyahPage()
-                  ),
-                  menuCard(
-                    context,
-                    "Anggota Kelompok",
-                    Icons.group,
-                    const ProfilePage(),
                   ),
                 ],
               ),
