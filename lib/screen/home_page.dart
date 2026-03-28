@@ -230,19 +230,19 @@ class HomePage extends StatelessWidget {
                   menuCard(
                     context,
                     "Tanggal Lahir",
-                    Icons.group,
+                    Icons.cake,
                     const TanggalLahirPage()
                   ),
                   menuCard(
                     context,
                     "Konversi Hari Jawa",
-                    Icons.group,
+                    Icons.calendar_today,
                     const WetonPage()
                   ),
                   menuCard(
                     context,
                     "Konversi Tahun Masehi",
-                    Icons.group,
+                    Icons.nightlight_round,
                     const HijriyahPage()
                   ),
                   menuCard(

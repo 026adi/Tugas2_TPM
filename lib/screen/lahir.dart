@@ -46,7 +46,9 @@ class _TanggalLahirPageState extends State<TanggalLahirPage> {
     }
 
     final inputDate = DateTime(t, b, h, j, m);
+    final now = DateTime.now();
 
+    // Validasi tanggal asli
     if (inputDate.year != t || inputDate.month != b || inputDate.day != h) {
       setState(() {
         hasil = "Tanggal tidak valid!";
@@ -54,8 +56,14 @@ class _TanggalLahirPageState extends State<TanggalLahirPage> {
       return;
     }
 
+    // Validasi agar tidak melebihi waktu sekarang
+    if (inputDate.isAfter(now)) {
+      setState(() {
+        hasil = "Tanggal dan waktu tidak boleh melebihi waktu sekarang!";
+      });
+      return;
+    }
     tanggalLahir = inputDate;
-
     timer?.cancel();
     timer = Timer.periodic(const Duration(minutes: 1), (_) {
       hitungUmur();
