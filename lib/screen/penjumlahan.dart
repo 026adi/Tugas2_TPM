@@ -13,7 +13,18 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
   String display = "0";
   bool isResult = false;
 
-  /// input angka / titik
+  /// FORMAT HASIL BIAR RAPI
+  String formatResult(double value) {
+    String result = value.toStringAsFixed(8);
+
+    // hapus nol belakang
+    result = result.replaceAll(RegExp(r'0+$'), '');
+    result = result.replaceAll(RegExp(r'\.$'), '');
+
+    return result;
+  }
+
+  /// INPUT ANGKA / TITIK
   void input(String value) {
 
     setState(() {
@@ -34,7 +45,7 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
 
   }
 
-  /// operator (+ - * /)
+  /// OPERATOR
   void operator(String op) {
 
     setState(() {
@@ -49,12 +60,13 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
 
   }
 
-  /// hitung expression
+  /// HITUNG
   void hitung() {
 
     try {
 
-      String finalExpression = display.replaceAll('×', '*').replaceAll('÷', '/');
+      String finalExpression =
+          display.replaceAll('×', '*').replaceAll('÷', '/');
 
       Parser p = Parser();
       Expression exp = p.parse(finalExpression);
@@ -67,7 +79,7 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
         if (result % 1 == 0) {
           display = result.toInt().toString();
         } else {
-          display = result.toString();
+          display = formatResult(result); // 🔥 FIX DISINI
         }
 
         isResult = true;
@@ -81,7 +93,7 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
     }
   }
 
-  /// clear
+  /// CLEAR
   void clear() {
     setState(() {
       display = "0";
@@ -89,7 +101,7 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
     });
   }
 
-  /// tombol
+  /// BUTTON
   Widget buildButton(String text,
       {Color color = Colors.white, Color textColor = Colors.black}) {
 
@@ -199,9 +211,7 @@ class _PenjumlahanScreenState extends State<PenjumlahanScreen> {
               buildButton("1"),
               buildButton("2"),
               buildButton("3"),
-              buildButton("=",
-                  color: Colors.blue,
-                  textColor: Colors.white),
+              buildButton("=", color: Colors.blue, textColor: Colors.white),
             ],
           ),
 

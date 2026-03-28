@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:teori_kelompok/screen/lahir.dart';
 import 'package:teori_kelompok/screen/login_page.dart';
 import 'package:teori_kelompok/screen/bangun.dart';
 import 'package:teori_kelompok/screen/penjumlahan.dart';
 import 'package:teori_kelompok/screen/bilangan_page.dart';
 import 'package:teori_kelompok/screen/deret.dart';
 import 'package:teori_kelompok/screen/stopwatch.dart';
-import 'package:teori_kelompok/screen/profile.dart'; // <- import baru
+import 'package:teori_kelompok/screen/profile.dart';
+import 'package:teori_kelompok/screen/tahun_hijiriyah.dart';
+import 'package:teori_kelompok/screen/tanggal_jawa.dart'; // <- import baru
 
 class HomePage extends StatelessWidget {
   final String namaUser;
@@ -230,6 +233,24 @@ class HomePage extends StatelessWidget {
                     "Anggota Kelompok",
                     Icons.group,
                     const ProfilePage(),
+                  ),
+                  menuCard(
+                    context,
+                    "Tanggal Lahir",
+                    Icons.group,
+                    const TanggalLahirPage()
+                  ),
+                  menuCard(
+                    context,
+                    "Konversi Hari Jawa",
+                    Icons.group,
+                    const WetonPage()
+                  ),
+                  menuCard(
+                    context,
+                    "Konversi Tahun Masehi",
+                    Icons.group,
+                    const HijriyahPage()
                   ),
                 ],
               ),
